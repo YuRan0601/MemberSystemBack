@@ -20,10 +20,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yuran.hotel.user.dto.UserDto;
 import com.yuran.hotel.user.security.CustomUserDetails;
 import com.yuran.hotel.user.service.AuthService;
-import com.yuran.hotel.user.utils.LoginRequest;
-import com.yuran.hotel.user.utils.ResetPasswordRequest;
 import com.yuran.hotel.user.utils.Result;
 import com.yuran.hotel.user.utils.ResultCodeEnum;
+import com.yuran.hotel.user.vo.LoginRequest;
+import com.yuran.hotel.user.vo.ResetPasswordRequest;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -124,11 +124,21 @@ public class AuthController {
 		return Result.ok(null);
 	}
 	
+	/**
+	 * 透過email找尋用戶，生成驗證token，寄出重設密碼信件
+	 * @param email
+	 * @return
+	 */
 	@PostMapping("forgot-password/{email}")
 	public Result forgotPassword(@PathVariable String email) {
 		return authService.forgotPassword(email);
 	}
 	
+	/**
+	 * 通過攜帶的驗證token，修改密碼
+	 * @param req 內含token、新密碼
+	 * @return
+	 */
 	@PostMapping("reset-password")
 	public Result resetPassword(@RequestBody ResetPasswordRequest req) {
 		return authService.resetPassword(req);

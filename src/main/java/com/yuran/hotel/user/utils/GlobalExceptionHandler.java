@@ -1,15 +1,12 @@
 package com.yuran.hotel.user.utils;
 
-import java.util.Collections;
+
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 
@@ -51,5 +48,10 @@ public class GlobalExceptionHandler {
     	return Result.build(null, ResultCodeEnum.JWT_INVALID);
     }
     
+    
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public Result handleUsernameNotFoundException(UsernameNotFoundException ex) {
+    	return Result.build(null, ResultCodeEnum.USERNAME_ERROR);
+    }
     
 }

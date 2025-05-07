@@ -18,7 +18,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getRole()));
+    	//因為SecurityConfig裡面有設定hasRole/hasAnyRole，它會自動把所有的角色前面都加上"ROLE_"，所以這邊也必須加上"ROLE_"
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 
     @Override

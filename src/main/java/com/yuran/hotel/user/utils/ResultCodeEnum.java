@@ -10,7 +10,9 @@ public enum ResultCodeEnum {
     
     USERNAME_PASSWORD_ERROR(501,"usernamePasswordError"),
     
-    USERNAME_ERROR(502,"usernamePasswordError"),
+    USERNAME_ERROR(502,"usernameError"),
+    
+    PASSWORD_ERROR(503, "passwordError"),
     
     NOT_LOGIN(504,"notLogin"),
     

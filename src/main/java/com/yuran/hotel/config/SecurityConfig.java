@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.yuran.hotel.user.security.JwtFilter;
 
@@ -30,7 +31,11 @@ public class SecurityConfig {
 		http
 		.csrf(csrf -> csrf.disable())
 		.authorizeHttpRequests(auth -> {
-			auth.anyRequest().permitAll();
+			auth
+			.requestMatchers("/auth/**").permitAll()
+			.requestMatchers("/admin/**").hasRole("admin")
+			.requestMatchers("/user/**").hasAnyRole("user", "admin")
+			.anyRequest().authenticated();
 		})
 		.sessionManagement(session -> {
 			session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);

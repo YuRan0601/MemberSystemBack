@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +26,10 @@ import com.yuran.hotel.user.security.CustomUserDetails;
 import com.yuran.hotel.user.service.AuthService;
 import com.yuran.hotel.user.service.EmailService;
 import com.yuran.hotel.user.utils.JwtUtil;
-import com.yuran.hotel.user.utils.LoginRequest;
-import com.yuran.hotel.user.utils.ResetPasswordRequest;
 import com.yuran.hotel.user.utils.Result;
 import com.yuran.hotel.user.utils.ResultCodeEnum;
+import com.yuran.hotel.user.vo.LoginRequest;
+import com.yuran.hotel.user.vo.ResetPasswordRequest;
 
 import jakarta.annotation.Resource;
 
@@ -68,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public UserDto regist(UserDto userDto) {
-		
+		//密碼用PasswordEncoder加密後，存入users資料表
 		userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 		
 		Users user = UserDto.toUsers(userDto);
@@ -77,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
 		
 		UserDto savedUser = UserDto.toUserDto(save);
 		
+		//回傳成功加入資料表的users(密碼設為空值)
 		savedUser.setPassword(null);
 		
 		return savedUser;
@@ -84,11 +86,14 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public Map<String, Object> login(LoginRequest loginRequest) {
+		//透過帳密取得驗證，驗證失敗會拋出異常，驗證成功可以透過getPrincipal()來獲取UserDetails
 		Authentication auth = authManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 		
 		CustomUserDetails userDetails = (CustomUserDetails)auth.getPrincipal();
 		
+		
+		//把生成的token裝進Map裡回傳
 		Map<String, Object> response = new HashMap<String, Object>();
 		
 		response.put("token", jwtUtil.generateToken(userDetails.getUsername()));
@@ -120,15 +125,8 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public Result forgotPassword(String email) {
 		//透過email取得User
-		Optional<Users> dbUserOptional = userRepository.findByEmail(email);
-		
-		//如果找不到User就回傳502 USERNAME_ERROR
-		if(!dbUserOptional.isPresent()) {
-			return Result.build(null, ResultCodeEnum.USERNAME_ERROR);
-		}
-		
-		//取得的User本身
-		Users users = dbUserOptional.get();
+		Users users = userRepository.findByEmail(email)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 		
 		//使用UUID生成token
 		String token = UUID.randomUUID().toString();

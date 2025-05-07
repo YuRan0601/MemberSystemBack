@@ -1,4 +1,4 @@
-package com.yuran.hotel.user.utils;
+package com.yuran.hotel.user.vo;
 
 import lombok.Data;
 
